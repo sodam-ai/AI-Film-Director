@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practical AI Film Direction</title>
+<style>
+:root { color-scheme: light dark; }
+body { margin: 0; font: 1rem/1.65 system-ui, "Malgun Gothic", sans-serif; color: CanvasText; background: Canvas; }
+main { box-sizing: border-box; max-width: 72rem; margin: auto; padding: clamp(1rem, 4vw, 3rem); overflow-wrap: anywhere; }
+h1, h2, h3 { line-height: 1.35; }
+h2 { margin-top: 2.25rem; padding-bottom: .3rem; border-bottom: 1px solid GrayText; }
+a { color: LinkText; text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
+pre, details { padding: .8rem 1rem; border: 1px solid GrayText; border-radius: .4rem; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+code { font-family: ui-monospace, Consolas, monospace; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid GrayText; padding: .45rem .6rem; text-align: start; vertical-align: top; }
+details { margin: .6rem 0; }
+summary { cursor: pointer; font-weight: 650; }
+@media (max-width: 38rem) { th, td { padding: .3rem; } }
+@media print { main { max-width: none; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Practical AI Film Direction</h1>
+<p><a href="README.md">한국어 Markdown</a> · <a href="README.html">한국어 HTML</a> · <a href="README.en.md">English Markdown</a> · <a href="README.en.html">English HTML</a></p>
+<p>Give Codex a screenplay or a one-line scene description to get a shot plan, storyboard, and text you can enter into a video generation tool. A skill is a set of instructions Codex reads while doing a task. This guide uses a Windows PC and draws on the research and tests from November 14, 2026.</p>
+<h2>Contents</h2>
+<ol>
+<li><a href="#overview">What the skill does</a></li>
+<li><a href="#requirements">What you need</a></li>
+<li><a href="#install">Download and installation</a></li>
+<li><a href="#quickstart">Quick start</a></li>
+<li><a href="#commands">How to run it and which commands to use</a></li>
+<li><a href="#workflow">How to use it and the workflow</a></li>
+<li><a href="#architecture">How it works and its architecture</a></li>
+<li><a href="#files">Files and documents</a></li>
+<li><a href="#updates">What changed</a></li>
+<li><a href="#security">Security and data flow</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#faq">Frequently asked questions</a></li>
+<li><a href="#rights">Legal, copyright, licensing, and commercial use</a></li>
+</ol>
+<p><a id="overview"></a></p>
+<h2>1. What the skill does</h2>
+<p>A <strong>shot</strong> is one continuous camera view. A <strong>storyboard</strong> puts shots in order. An <strong>animatic</strong> gives the storyboard timing so you can check how it flows. The skill can plan that timing. A <strong>prompt</strong> is a written request to an AI. <strong>Continuity</strong> keeps people, clothes, props, and positions consistent across cuts. <strong>VFX</strong> are visual effects added after filming.</p>
+<table>
+<thead>
+<tr>
+<th>What you can ask for</th>
+<th>What you get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan an AI short film from a screenplay</td>
+<td>Story events, emotional beats, a shot list, and camera and performer directions</td>
+</tr>
+<tr>
+<td>Keep people and objects consistent across cuts</td>
+<td>Character, wardrobe, and location references, and a comparison of the previous ending and next opening</td>
+</tr>
+<tr>
+<td>Write text for a video generator</td>
+<td>Korean direction notes, English prompts, and an option to work one shot at a time</td>
+</tr>
+<tr>
+<td>Coordinate shot length, acting, and sound</td>
+<td>A timed storyboard, acting and sound cues, and editing and review checks</td>
+</tr>
+<tr>
+<td>Estimate retries or split work across live action, AI, and VFX</td>
+<td>A generation log, separate estimated and actual credits, and a breakdown by shot</td>
+</tr>
+</tbody>
+</table>
+<p>Movie recommendations, reviews, general PDF summaries, and architecture unrelated to a film are outside the scope. The default result is a written direction plan. Creating media requires an available generation tool and permission covering its use and any costs.</p>
+<p><a id="requirements"></a></p>
+<h2>2. What you need</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>When you need it</th>
+<th>How to prepare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows PC and File Explorer</td>
+<td>Basic use</td>
+<td>Select the folder icon on the taskbar or press <code>Windows key + E</code>.</td>
+</tr>
+<tr>
+<td>Account with Codex access and internet</td>
+<td>To request an AI response</td>
+<td>Check that your account can use Codex and sign in.</td>
+</tr>
+<tr>
+<td>ChatGPT desktop app or Codex CLI</td>
+<td>Basic use</td>
+<td>Choose the desktop app for a graphical interface or the CLI for typed commands. One is enough.</td>
+</tr>
+<tr>
+<td>Installation folder and a short scene</td>
+<td>Basic use</td>
+<td>Check that the <code>ai-film-director</code> folder contains <code>SKILL.md</code>. Start with the fictional example below.</td>
+</tr>
+<tr>
+<td>Browser or text editor</td>
+<td>To read the guide</td>
+<td>Open HTML in a browser and Markdown (<code>.md</code>) in Notepad or a Markdown viewer. Only external links need internet access.</td>
+</tr>
+<tr>
+<td>Node.js and npm</td>
+<td>For an npm-based CLI installation</td>
+<td>Get the Windows distribution from the <a href="https://nodejs.org/en/download">official Node.js download page</a>.</td>
+</tr>
+<tr>
+<td>Python 3, Codex CLI, and <code>codex.cmd</code></td>
+<td>Optional Windows verification</td>
+<td>Check <code>python --version</code> and <code>Get-Command codex.cmd</code>. Extracting and rendering the source PDF requires extra libraries.</td>
+</tr>
+<tr>
+<td>Video generation and editing tools</td>
+<td>Actual media production</td>
+<td>Check the capabilities, prices, data handling, and usage rights for the tool you choose.</td>
+</tr>
+</tbody>
+</table>
+<p>Normal skill use requires no source PDF, Python, Git, separate API key, or KakaoTalk installation. These Windows installation steps apply to a PC. A folder groups files, and a path is the address of a file or folder.</p>
+<p><a id="install"></a></p>
+<h2>3. Download and installation</h2>
+<h3>3.1 Prepare Codex</h3>
+<ol>
+<li>For desktop use, get the Windows app from the <a href="https://chatgpt.com/download/">official ChatGPT download page</a> and sign in with an account that can use Codex.</li>
+<li>For command-line use, see the Windows options in the <a href="https://github.com/openai/codex#installing-and-running-codex-cli">official Codex CLI installation guide</a>. <a href="#commands">Section 5</a> covers npm and signing in.</li>
+<li>First check for an existing installation. Paste <code>%USERPROFILE%\.agents\skills\ai-film-director</code> into the <strong>address bar at the top of File Explorer</strong> and press Enter. If you see <code>SKILL.md</code>, <code>agents</code>, and <code>references</code>, go to <a href="#quickstart">quick start</a>. Compare the existing files and check their source before replacing anything.</li>
+</ol>
+<h3>3.2 Get the files</h3>
+<p>The local copy is in the <a href="outputs/ai-film-skill/ai-film-director/">ai-film-director installation folder</a>. A public release or download URL for this project has not been verified. For another computer, obtain the folder or an authorized ZIP archive from the rights holder. A ZIP bundles several files. Right-click it, choose <strong>Extract All</strong>, and locate the <code>ai-film-director</code> folder that directly contains <code>SKILL.md</code>.</p>
+<p>If you got an authorized file in a messaging app, download it from the message and check your <strong>Downloads</strong> folder. Confirm the nine installation files in <a href="#files">Section 8</a>. You only need the installation folder. Check <a href="#rights">Section 13</a> before asking for files or sharing them with someone else.</p>
+<h3>3.3 Copy the folder</h3>
+<ol>
+<li>Enter <code>%USERPROFILE%</code> in the File Explorer address bar to open your Windows user folder.</li>
+<li>Create a folder named <code>.agents</code> if it is missing, then a folder named <code>skills</code> inside it. Open the existing folders if they are already there.</li>
+<li>Select the entire <code>ai-film-director</code> folder and press <code>Ctrl + C</code>. Open <code>%USERPROFILE%\.agents\skills</code> and press <code>Ctrl + V</code>.</li>
+<li>Check that the path below opens the actual <code>SKILL.md</code>. Correct a doubled <code>ai-film-director</code> folder or an accidental <code>.md.txt</code> extension. Use <strong>View → Show → File name extensions</strong> in File Explorer to see the full name.</li>
+<li>Open a new Codex chat and try the <a href="#quickstart">quick start</a>. If the skill is missing, save your work and reopen the app or CLI. Same-name copies in different discovery locations may show up twice. <a href="https://learn.chatgpt.com/docs/build-skills">Official skill discovery instructions</a></li>
+</ol>
+<pre><code class="language-text">%USERPROFILE%\.agents\skills\ai-film-director\SKILL.md
+</code></pre>
+<p>On this PC the installed file was verified at <code>C:\Users\PC\.agents\skills\ai-film-director\SKILL.md</code>. Codex can discover a user-level skill from different workspaces under that account.</p>
+<p><a id="quickstart"></a></p>
+<h2>4. Quick start</h2>
+<ol>
+<li>Open a blank Codex chat. If prompted to choose a working folder, select this project folder.</li>
+<li>Copy the example, paste it into the message box, and send it. It uses a fictional scene and asks for a text response.</li>
+<li>Check that the answer totals 12 seconds across three shots, joins their start and end states, preserves the silent scene, and includes English prompts. For proof of automatic selection, look for a successful skill file read in the execution record as well as a completed result.</li>
+</ol>
+<pre><code class="language-text">Plan this scene for an AI film as three shots totaling 12 seconds.
+A woman opens a drawer, takes out a photograph, and looks at a window.
+Describe each shot's start and end states, character, wardrobe and prop continuity, and the cuts.
+Give me a Korean storyboard and English video generation prompts. There is no dialogue.
+Reply with text only. Do not change files or generate images or video.
+</code></pre>
+<p>A possible split is <code>0–4 s: open the drawer → 4–8 s: take out the photograph → 8–12 s: look at the window</code>, with a prompt for each shot. Check the total duration and the order of events.</p>
+<p><a id="commands"></a></p>
+<h2>5. How to run it and which commands to use</h2>
+<p>In the <strong>desktop app</strong>, send a message as in <a href="#quickstart">Section 4</a>. To select the skill yourself, start the request with <code>$ai-film-director</code> or find the skill under <strong>Skills</strong> in the sidebar. <a href="https://learn.chatgpt.com/docs/build-skills">Official skill documentation</a></p>
+<p>A <strong>CLI</strong> is a program you use by typing commands. Open PowerShell from the Windows Start menu and enter these commands one line at a time. Replace the path in quotes if your project lives elsewhere.</p>
+<pre><code class="language-powershell">codex --version
+Set-Location -LiteralPath 'C:\Users\PC\Documents\ChatGPT\제거'
+codex
+</code></pre>
+<p>If the CLI is missing and you choose npm, install Node.js, open a new PowerShell window and run these commands. Open a new window and run <code>codex --version</code> after the installation. Run <code>codex</code> and sign in when prompted. <a href="https://github.com/openai/codex#installing-and-running-codex-cli">Official Codex CLI installation guide</a></p>
+<pre><code class="language-powershell">node --version
+npm.cmd --version
+npm.cmd install -g @openai/codex
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Where to type</th>
+<th>Command or input</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PowerShell</td>
+<td><code>codex --version</code></td>
+<td>Show the installed CLI version.</td>
+</tr>
+<tr>
+<td>PowerShell</td>
+<td><code>codex exec --help</code></td>
+<td>Show options for a single request.</td>
+</tr>
+<tr>
+<td>Running Codex CLI</td>
+<td><code>/skills</code></td>
+<td>Show the skill list in supported CLI versions.</td>
+</tr>
+<tr>
+<td>Codex message box</td>
+<td>A request starting with <code>$ai-film-director</code></td>
+<td>Select the skill by name.</td>
+</tr>
+<tr>
+<td>Codex message box</td>
+<td>A directing or storyboard request without a skill name</td>
+<td>Let Codex match the request to a skill description.</td>
+</tr>
+</tbody>
+</table>
+<p>The following command sends one request and exits. <code>--sandbox read-only</code> restricts file writes by model-run shell commands. <code>--ephemeral</code> skips saving the local session. See <a href="#security">Section 10</a> for separate service and hook data handling. You may need <code>--skip-git-repo-check</code> outside a Git repository.</p>
+<pre><code class="language-powershell">codex exec --ephemeral --sandbox read-only 'Plan an AI film scene as a silent 12-second, three-shot storyboard with English video prompts. Do not generate media.'
+</code></pre>
+<h3>Optional. Rerun the developer checks</h3>
+<p>Run these only if you want to verify the installation and behavior. Use the project root. To keep the original JSON reports, save copies elsewhere before the checks.</p>
+<pre><code class="language-powershell">python -X utf8 outputs/ai-film-skill/test_host_discovery.py
+python -X utf8 outputs/ai-film-skill/test_implicit_live.py
+</code></pre>
+<ul>
+<li>The first command starts a separate local Codex app-server, checks discovery and enabled status using <code>skills/list</code>, and updates <code>host-discovery.json</code>.</li>
+<li>The second command sends a live request through Windows <code>codex.cmd</code> and updates <code>implicit-live-v3.json</code>. It can count toward your account usage. Its internal time limit is 600 seconds.</li>
+<li>Check that the request omits the skill name, that the log shows successful reads of <code>SKILL.md</code> and the relevant guidance, and that the result is complete with <code>turn.completed</code> and CLI exit code 0. An exit code alone cannot prove which skill was selected.</li>
+</ul>
+<p><a id="workflow"></a></p>
+<h2>6. How to use it and the workflow</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What you provide or decide</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Read the source</td>
+<td>The scene or screenplay and dialogue and events to preserve</td>
+<td>Separate source facts, direction choices, and undecided details.</td>
+</tr>
+<tr>
+<td>2. Set references</td>
+<td>Duration, aspect ratio, people, clothes, place, props, and tool if known</td>
+<td>State assumptions and the purpose of each reference.</td>
+</tr>
+<tr>
+<td>3. Plan shots</td>
+<td>What viewers must learn and feel, and how many shots you want</td>
+<td>Check shot IDs, target times, camera, action, sound, and start and end states.</td>
+</tr>
+<tr>
+<td>4. Write prompts</td>
+<td>Languages and output format</td>
+<td>Keep the dialogue and sequence intact. Mark any unconfirmed tool options.</td>
+</tr>
+<tr>
+<td>5. Test production</td>
+<td>A media request, an approved tool, and a limit on attempts and spending</td>
+<td>Test the core action, hands, and props. For repeated failures, consider a shorter shot, different cut, or live action and compositing.</td>
+</tr>
+<tr>
+<td>6. Join and review</td>
+<td>Selected video and audio files and candidate time ranges</td>
+<td>Carry the actual last frame into the next shot's setup. Play the whole result and record issue times and changes.</td>
+</tr>
+</tbody>
+</table>
+<p>Ask for “the storyboard table only” or “check hand and prop continuity between these two shots only” to narrow the result. A credit is a unit a service uses to count work. A three-shot clip that costs 10 credits per generation and is retried six times costs 7 × 10 = 70 credits. Confirm actual billing units and remaining credits in the provider's activity log.</p>
+<p><a id="architecture"></a></p>
+<h2>7. How it works and its architecture</h2>
+<p>Architecture describes how the parts work together.</p>
+<pre><code class="language-text">User request and authorized inputs
+  → Codex matches the request to skill descriptions
+  → Codex selects and reads ai-film-director/SKILL.md
+  → Codex reads relevant documents in references
+  → Chat receives a storyboard, prompts, continuity notes, or review guidance
+  → A generation tool runs only when generation is requested and authorized
+</code></pre>
+<ul>
+<li>The name and description in <code>SKILL.md</code> help Codex discover and select the skill. Its body defines workflow and completion checks.</li>
+<li><code>agents/openai.yaml</code> supplies the display name, default request example, and <code>allow_implicit_invocation: true</code>. This allows Codex to select the skill without its name in the request. Selection depends on the request and host.</li>
+<li><code>references/</code> holds details. Codex can read the files relevant to the request. A specific directing request gives it clearer selection cues.</li>
+<li>The nine installation files are instructions and settings. They contain no executable, standalone video model, background service, or scheduler.</li>
+<li>The Python tools and evidence in <code>outputs/ai-film-skill</code> are development materials. Normal use does not require them.</li>
+</ul>
+<p><a id="files"></a></p>
+<h2>8. Files and documents</h2>
+<p>The project root is <code>C:\Users\PC\Documents\ChatGPT\제거</code>. The links are relative to it. The installed copy is in <code>%USERPROFILE%\.agents\skills\ai-film-director</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Installation files</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/SKILL.md">SKILL.md</a></td>
+<td>Scope, selection, and workflow</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/agents/openai.yaml">agents/openai.yaml</a></td>
+<td>Display name and implicit selection setting</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/direction.md">references/direction.md</a></td>
+<td>Intent, staging, camera, and action</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/continuity.md">references/continuity.md</a></td>
+<td>People, space, props, and cut continuity</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/prompts.md">references/prompts.md</a></td>
+<td>Prompt structure, multiple shots, and small tests</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/edit-sound.md">references/edit-sound.md</a></td>
+<td>Timing, acting, sound, and final review</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/production-vfx.md">references/production-vfx.md</a></td>
+<td>Generation history, costs, live action, and effects</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/presets.md">references/presets.md</a></td>
+<td>Nine templates for full direction, single shots, people, locations, storyboards, continuity, acting and sound, credits, and live action, AI, and VFX</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/ai-film-director/references/source-map.md">references/source-map.md</a></td>
+<td>Map from the 132 source pages to the guidance</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Project materials</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="outputs/ai-film-skill/REVIEW.md">REVIEW.md</a></td>
+<td>PDF research, structural checks, and first timeout</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/IMPLICIT-VERIFICATION.md">IMPLICIT-VERIFICATION.md</a></td>
+<td>Three later runs and evidence of implicit selection</td>
+</tr>
+<tr>
+<td><a href="outputs/ai-film-skill/host-discovery.json">host-discovery.json</a>, <a href="outputs/ai-film-skill/validation.json">validation.json</a></td>
+<td>Discovery and enabled status, and ten structural checks</td>
+</tr>
+<tr>
+<td><code>outputs/ai-film-skill/implicit-live*.json</code></td>
+<td>Internal test events, output, and file hashes</td>
+</tr>
+<tr>
+<td><code>outputs/ai-film-skill/source-pages.json</code>, <code>source-text.txt</code>, <code>illustrated-pages.png</code></td>
+<td>Extracted text and research images. Check rights before sharing</td>
+</tr>
+<tr>
+<td><code>outputs/ai-film-skill/source-manifest.json</code>, <code>page-coverage.json</code></td>
+<td>Source hash and page coverage checks</td>
+</tr>
+</tbody>
+</table>
+<p>The original PDF is named <code>AI_영화_연출_실전_안내서.pdf</code>. It was supplied on this PC and is separate from the installation folder.</p>
+<p><a id="updates"></a></p>
+<h2>9. What changed</h2>
+<p>Select a title to expand or collapse it. A plain text editor shows the contents directly.</p>
+<details>
+<summary>November 14, 2026 · Initial build and installation</summary>
+<ul>
+<li>Reviewed 132 pages of text and the eight pages with illustrations. A source map and nine templates help you find the relevant guidance.</li>
+<li>The nine files in the staging and installed copies matched during the initial check. All ten structural checks passed, both copies passed skill format validation, and a separate app-server found the enabled user skill.</li>
+</ul>
+</details>
+<details>
+<summary>November 14, 2026 · Timeout diagnosis and implicit-selection testing</summary>
+<ul>
+<li>The initial attempt did not return a result under an internal limit of 180 seconds and an outer limit of 200 seconds. A later run selected the skill but stopped on a report write error. Another finished in 199.4 seconds with no recorded skill read.</li>
+<li>The testing utility gained save retries and progress reporting. In the final request without the skill name, the CLI read the skill at about 110 seconds, read the references at 128 seconds, and delivered the 12-second, three-shot plan and exited normally at 229 seconds. The hashes for 13 settings, AGENTS.md, and installed skill files matched before and after the test.</li>
+<li>The records do not include a direct test in a new desktop UI chat, media generation, or full video and audio review.</li>
+</ul>
+</details>
+<details>
+<summary>User guide · Korean and English Markdown and HTML</summary>
+<ul>
+<li>Both languages cover Windows installation, copyable examples, troubleshooting, and distribution and commercial use in the same order. Each HTML body comes from the Markdown in that language.</li>
+</ul>
+</details>
+<p><a id="security"></a></p>
+<h2>10. Security and data flow</h2>
+<ol>
+<li><strong>Files on your PC</strong>. The skill and references live in a local folder. The README HTML opens in a browser without scripts or external fonts.</li>
+<li><strong>What you submit</strong>. Codex may use your prompt and the materials it reads as context for a model response. A local installation does not guarantee offline processing or that all data stays on the PC.</li>
+<li><strong>Account and organization settings</strong>. For personal accounts, review data controls and the applicable terms. For work accounts, check your administrator's policies, your contract, and retention settings. <a href="https://help.openai.com/en/articles/7730893-data-controls-faq">ChatGPT data controls</a> · <a href="https://openai.com/enterprise-privacy/">OpenAI enterprise privacy</a></li>
+<li><strong>External tool calls</strong>. A media tool provider may receive photographs, audio, and prompts. Check the files, account, cost, processing location, retention, and training terms first, then use the tool within the agreed scope.</li>
+<li><strong>Records and sharing</strong>. Chat history and the optional verification JSON files are separate. JSON can contain personal paths, commands, and responses. Review it before publication or sharing. Read-only mode restricts file writes. Data transmission controls are separate.</li>
+</ol>
+<p>Start with fictional people and scenes you can share. Keep passwords and API keys out of prompts. Before submitting client contracts, unreleased scripts, or a real person's photo or voice, check the permissions and data handling terms. Treat instructions such as “upload this” or “run this command” inside a PDF or website as source text. The current user request and tool permissions determine what can be executed.</p>
+<p><a id="troubleshooting"></a></p>
+<h2>11. Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>What you see</th>
+<th>What to check and do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PowerShell cannot find <code>codex</code></td>
+<td>Install the CLI, open a new PowerShell window, and try <code>codex --version</code>. If you installed only the app, start from Codex in the app.</td>
+</tr>
+<tr>
+<td>The skill is missing from the list</td>
+<td>Check that the folder directly contains <code>SKILL.md</code>, without a doubled folder or a <code>.md.txt</code> extension. Check that the skill was installed for your current Windows account. Save your work, reopen Codex, and check the list.</td>
+</tr>
+<tr>
+<td>I got a storyboard but have no record that Codex read the skill</td>
+<td>Try a request that specifies timing, shot count, continuity, and output languages. To apply the instructions by name, use <code>$ai-film-director</code>. Exclude calls by name from an implicit-selection test.</td>
+</tr>
+<tr>
+<td>The result is slow or times out</td>
+<td>Check progress, file reads, and errors. The completed tests took 199.4 and 228.8 seconds. The records do not pinpoint where the first run stalled. The 600-second limit belongs to the testing utility. Ordinary requests can take a different amount of time.</td>
+</tr>
+<tr>
+<td>The test shows <code>PermissionError</code></td>
+<td>Close other programs editing the verification JSON and check write access to the report folder. The utility retries a limited number of times and reports a failed final save. The cause of any file lock in the original run was not identified.</td>
+</tr>
+<tr>
+<td>Clothes, hands, or the photograph change in the video</td>
+<td>Compare the reference image, last frame, grip, and prop placement. Try one shot to isolate the cause.</td>
+</tr>
+<tr>
+<td>HTML opens but the local links fail</td>
+<td>Moving only the README can break relative links. Open it from the original project folder or keep the directory layout when moving files you have permission to share.</td>
+</tr>
+</tbody>
+</table>
+<p><a id="faq"></a></p>
+<h2>12. Frequently asked questions</h2>
+<h3>Do I have to attach the PDF every time?</h3>
+<p>The installed skill includes its guidance. Start by entering your own scene description.</p>
+<h3>Will it make a film automatically with my computer off?</h3>
+<p>Implicit use means Codex can select the skill when it receives your request. The package contains no scheduler or background service.</p>
+<h3>Was it tested in the app?</h3>
+<p>A separate app-server discovered the installed skill. The test from automatic selection to completed text output used the Windows CLI. The records do not include a direct test in a new desktop UI chat.</p>
+<h3>Do I need to speak English?</h3>
+<p>You can ask in Korean and get a Korean storyboard and English prompts. Check the Korean directions and constraints before submitting the English prompts to another service.</p>
+<h3>How do I revise just one part?</h3>
+<p>Name the shot to change and what to keep. For example, “Change only the hand holding the photo in S2 to match S1. Keep all other shots and timings.”</p>
+<h3>Can I install it in KakaoTalk or on my phone?</h3>
+<p>This guide uses the Windows folder that Codex reads. A messaging app can transfer authorized files. A phone browser can display the HTML. Local installation on mobile has not been verified.</p>
+<p><a id="rights"></a></p>
+<h2>13. Legal, copyright, licensing, and commercial use</h2>
+<p><strong>Publish, sell, or deliver work to a client only within confirmed rights.</strong> Apply these checks before sharing or producing work. Ask the rights holder and seek qualified legal advice where needed for the jurisdiction, contract, and intended use.</p>
+<table>
+<thead>
+<tr>
+<th>Material</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source PDF, full text extracts, illustrations, and page images</td>
+<td>Check the rights holder and what the permission covers. Receiving a file does not grant permission to publish copies, translate it, or redistribute it. Exceptions depend on the case. <a href="https://elaw.klri.re.kr/eng_service/lawViewTitle.do?hseq=74342">Korean Copyright Act, including Articles 16–22</a></td>
+</tr>
+<tr>
+<td>This skill, its README, guidance, and templates</td>
+<td>The installation folder contains no separate LICENSE or NOTICE. This README grants no license. Confirm rights before redistributing the skill or modified versions externally or using them commercially.</td>
+</tr>
+<tr>
+<td>OpenAI Codex CLI and the service</td>
+<td>Apache-2.0 applies to the code in the public CLI repository. Confirm separate rights for this skill and the PDF. Check the service terms for your account and contract. <a href="https://github.com/openai/codex">Public Codex repository</a> · <a href="https://openai.com/policies/terms-of-use/">OpenAI individual terms</a> · <a href="https://openai.com/policies/services-agreement/">OpenAI business agreement</a></td>
+</tr>
+<tr>
+<td>Model output and external generation tools</td>
+<td>Read output clauses in the context of the parties and applicable law. Check third-party rights, exclusivity, copyright eligibility, and permission for commercial use separately. Record current terms for the provider, account, plan, and model.</td>
+</tr>
+<tr>
+<td>Assets in the film</td>
+<td>Check the script, footage, music composition and recording, fonts, images, stock assets, trademarks, likeness, and voice separately. Check for releases, consent to clone voices, AI disclosure requirements, and editing or distribution limits.</td>
+</tr>
+</tbody>
+</table>
+<p>Before commercial use, record <strong>the asset name, source, rights holder, permitted media, term, territory, permitted edits, permission for AI processing and commercial use, and supporting evidence</strong>. Confirm any client transfer or resale rights you need. Leave material with unclear rights out of the release and use your own assets or assets with confirmed permissions. Attribution or a purchase receipt alone does not expand the license.</p>
+</main>
+</body>
+</html>
