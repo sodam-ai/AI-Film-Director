@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI 영화 연출 실전"
+  short_description: "시나리오부터 숏·프롬프트·연속성·편집·사운드까지 설계"
+  default_prompt: "$ai-film-director를 사용해 제공한 시나리오를 원문에 충실한 숏 설계와 생성 프롬프트로 바꿔 주세요."
+policy:
+  allow_implicit_invocation: true
